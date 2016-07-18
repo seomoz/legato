@@ -56,6 +56,7 @@ shared_examples_for "a management finder" do
 
     it "returns an array of all #{subject_class_name}" do
       res = described_class.all(large_user, first_url)
+      expect(res.size).to eq 2
       res.each do |result|
         expect(result.class).to eq(described_class)
       end

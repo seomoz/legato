@@ -2,6 +2,9 @@ module Legato
   module Management
     module Finder
 
+      ITEMS_KEY = "items"
+      NEXT_LINK_KEY = 'nextLink'
+
       def base_uri
         "https://www.googleapis.com/analytics/v3/management"
       end
@@ -21,8 +24,6 @@ module Legato
       end
 
       private
-        def items_key; "items"; end
-        def next_link_key; "nextLink"; end
 
         def collect_items(user, base_uri)
           next_uri = base_uri
@@ -30,8 +31,8 @@ module Legato
 
           while next_uri
             url_result = url_fetch_for_user(user, next_uri)
-            item_collection.concat(url_result.fetch(items_key, []))
-            next_uri = url_result.fetch(next_link_key, nil)
+            item_collection.concat(url_result.fetch(ITEMS_KEY, []))
+            next_uri = url_result.fetch(NEXT_LINK_KEY, nil)
           end
 
           item_collection
