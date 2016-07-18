@@ -1,6 +1,10 @@
 module Legato
   module Management
     module Finder
+
+      ITEMS_KEY = "items"
+      NEXT_LINK_KEY = 'nextLink'
+
       def base_uri
         "https://www.googleapis.com/analytics/v3/management"
       end
@@ -14,10 +18,29 @@ module Legato
           base_uri + path
         end
 
-        json = user.access_token.get(base_uri + path).body
-        items = MultiJson.decode(json).fetch('items', [])
-        items.map {|item| new(item, user)}
+        collect_items(user, uri).map do |item|
+          new(item, user)
+        end
       end
+
+      private
+
+        def collect_items(user, base_uri)
+          next_uri = base_uri
+          item_collection = []
+
+          while next_uri
+            url_result = url_fetch_for_user(user, next_uri)
+            item_collection.concat(url_result.fetch(ITEMS_KEY, []))
+            next_uri = url_result.fetch(NEXT_LINK_KEY, nil)
+          end
+
+          item_collection
+        end
+
+        def url_fetch_for_user(user, path)
+          MultiJson.decode(user.access_token.get(path).body)
+        end
     end
   end
 end
